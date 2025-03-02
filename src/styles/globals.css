@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global reset and body styles */
+body {
+  @apply bg-background text-white font-sans px-pagePadding;
+}
+
+/* Button Styles */
+.btn-primary {
+  @apply bg-primary text-white py-2 px-4 rounded-md hover:bg-green-500 transition;
+}
+
+.btn-secondary {
+  @apply border border-white py-2 px-4 rounded-md hover:bg-white hover:text-black transition;
+}
+
+/* Input Styles */
+.input {
+  @apply bg-input text-white px-4 py-2 rounded-md border border-gray-500;
+}
+
+.input-error {
+  @apply border-error text-error;
+}
+
+/* Card Styles */
+.card {
+  @apply bg-card p-4 rounded-md shadow-lg;
+}
