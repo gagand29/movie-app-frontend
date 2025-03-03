@@ -4,7 +4,27 @@
 
 /* Global reset and body styles */
 body {
-  @apply bg-background text-white font-sans px-pagePadding;
+  @apply bg-background text-white font-sans;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+/* Fixed navbar */
+.navbar {
+  @apply fixed top-0 left-0 right-0 z-50 bg-background px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center shadow-md;
+}
+
+/* Main container to prevent overlap with navbar */
+.content-container {
+  @apply w-full max-w-[1200px] mx-auto px-4 sm:px-6 md:px-8;
+  padding-top: 70px;
+}
+
+@media (min-width: 640px) {
+  .content-container {
+    padding-top: 80px;
+  }
 }
 
 /* Button Styles */
@@ -12,20 +32,63 @@ body {
   @apply bg-primary text-white py-2 px-4 rounded-md hover:bg-green-500 transition;
 }
 
-.btn-secondary {
-  @apply border border-white py-2 px-4 rounded-md hover:bg-white hover:text-black transition;
-}
-
-/* Input Styles */
-.input {
-  @apply bg-input text-white px-4 py-2 rounded-md border border-gray-500;
-}
-
-.input-error {
-  @apply border-error text-error;
-}
-
 /* Card Styles */
 .card {
-  @apply bg-card p-4 rounded-md shadow-lg;
+  @apply bg-[#092C39] p-4 rounded-lg shadow-lg flex flex-col justify-between;
+  width: 200px;
+  height: 350px;
+}
+
+/* Responsive Grid Layout */
+.movie-grid {
+  @apply grid gap-6 justify-items-center;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+/* Mobile (2 per row) */
+@media (min-width: 640px) {
+  .movie-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Tablet (3 per row) */
+@media (min-width: 768px) {
+  .movie-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Desktop (4 per row) */
+@media (min-width: 1024px) {
+  .movie-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Pagination styles */
+/* Pagination Container */
+.pagination-container {
+  @apply flex justify-center items-center mt-6 space-x-4;
+}
+
+/* Pagination Button (Prev & Next) */
+.pagination-button {
+  @apply text-white font-semibold px-4 py-2 rounded-md hover:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* Pagination Number */
+.pagination-number {
+  @apply px-4 py-2 rounded-md font-semibold transition;
+  background-color: #0F2D3A; /* Default background */
+  color: white;
+}
+
+/* Active Page (Green Background) */
+.pagination-number.active {
+  background-color: #4CAF50; /* Green */
+  color: white;
+}
+.input {
+  @apply bg-input text-white px-4 py-2 rounded-md border border-gray-500;
 }
