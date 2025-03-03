@@ -1,13 +1,42 @@
-"use client";
+import { ButtonHTMLAttributes, ReactNode } from "react";
 
-interface ButtonProps {
-  onClick?: () => void; // ✅ Make onClick optional
-  children: React.ReactNode;
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  className?: string;
+  variant?: "primary" | "secondary" | "outline";
+  size?: "sm" | "md" | "lg";
+  fullWidth?: boolean;
+  children: ReactNode;
 }
 
-export default function Button({ onClick, children }: ButtonProps) {
+export default function Button({
+  className = "",
+  variant = "primary",
+  size = "md",
+  fullWidth = false,
+  children,
+  ...props
+}: ButtonProps) {
+  const baseStyles = "font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2";
+  
+  const variantStyles = {
+    primary: "bg-[#66D37E] hover:bg-[#50C268] text-white focus:ring-[#66D37E]",
+    secondary: "bg-[#1E5470] hover:bg-[#164259] text-white focus:ring-[#1E5470]",
+    outline: "border border-[#66D37E] text-[#66D37E] hover:bg-[#66D37E]/10 focus:ring-[#66D37E]"
+  };
+  
+  const sizeStyles = {
+    sm: "py-1.5 px-3 text-sm",
+    md: "py-2 px-4",
+    lg: "py-3 px-6 text-lg"
+  };
+  
+  const widthStyles = fullWidth ? "w-full" : "";
+  
   return (
-    <button onClick={onClick} className="bg-primary text-white px-4 py-2 rounded">
+    <button
+      className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${widthStyles} ${className}`}
+      {...props}
+    >
       {children}
     </button>
   );

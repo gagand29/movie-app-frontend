@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:5001/api/auth";
+const API_BASE_URL = "http://localhost:5001/api";
 
 export const login = async (email: string, password: string) => {
   const response = await fetch(`${API_BASE_URL}/login`, {
@@ -17,3 +17,21 @@ export const signup = async (name: String,email: string, password: string) => {
   });
   return response.json();
 };
+
+export const fetchMovies = async (token: string) => {
+    const response = await fetch(`${API_BASE_URL}/movies`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch movies");
+    }
+    return response.json();
+  };
+
+export const logout =() =>{
+    localStorage.removeItem("token");
+}
