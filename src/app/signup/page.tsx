@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import Link from "next/link";
+import { toast } from "react-toastify";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export default function SignupPage() {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
+  //Email Validation Function
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
@@ -27,6 +29,7 @@ export default function SignupPage() {
     return true;
   };
 
+  //Password Validation Function
   const validatePassword = () => {
     if (!password) {
       setPasswordError("Password is required");
@@ -42,25 +45,27 @@ export default function SignupPage() {
     return true;
   };
 
+  // Signup API Call
   const handleSignup = async () => {
     if (!validateEmail(email) || !validatePassword() || !name) {
-      if (!name) alert("Name is required");
+      if (!name) toast.error("Name is required");
       return;
     }
 
     try {
-      const response = await fetch("http://localhost:5001/api/auth/signup", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),
       });
 
-      if (!response.ok) throw new Error("Signup failed");
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Signup failed");
 
-      alert("User registered successfully!");
+      toast.success("User registered successfully!");
       router.push("/login");
-    } catch (error) {
-      alert("Signup failed: " + (error as Error).message);
+    } catch (error: any) {
+      toast.error(error.message || "Signup failed");
     }
   };
 
@@ -82,17 +87,42 @@ export default function SignupPage() {
         </div>
 
         <div className="space-y-4 p-6 rounded-lg bg-opacity-10">
+          {/* Full Name */}
           <Input type="text" placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} />
-          <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} error={emailError} onBlur={() => validateEmail(email)} />
-          <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          <Input type="password" placeholder="Confirm Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} error={passwordError} onBlur={validatePassword} />
 
+          {/* Email Input */}
+          <Input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onBlur={() => validateEmail(email)}
+            error={emailError}
+          />
+
+          {/* Password Input */}
+          <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+
+          {/* Confirm Password Input */}
+          <Input
+            type="password"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            onBlur={validatePassword}
+            error={passwordError}
+          />
+
+          {/* Signup Button */}
           <Button onClick={handleSignup} className="w-full bg-[#66D37E] hover:bg-[#50C268] text-white font-medium py-3 rounded-md">
             Sign Up
           </Button>
 
+          {/* Redirect to Login */}
           <div className="text-center mt-4">
-            <Link href="/login" className="text-[#66D37E] hover:text-[white] text-sm">Already have an account? Sign In</Link>
+            <Link href="/login" className="text-[#66D37E] hover:text-[white] text-sm">
+              Already have an account? Sign In
+            </Link>
           </div>
         </div>
       </div>

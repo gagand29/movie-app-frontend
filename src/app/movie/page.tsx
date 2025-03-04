@@ -1,6 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+
 import MovieCard from "@/components/MovieCard";
 import Navbar from "@/components/Navbar";
 import { fetchMovies, logout } from "@/utils/api";
@@ -13,50 +16,49 @@ type Movie = {
 };
 
 export default function MoviesPage() {
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const moviesPerPage = 8;
   const router = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
+  //Fetch movies using React Query (No need to pass token)
+  const { data: movies = [], isLoading, error }: UseQueryResult<Movie[], Error> = useQuery({
+    queryKey: ["movies"],
+    queryFn: fetchMovies, // ✅ No manual token handling
+  });
 
-    setLoading(true);
-    fetchMovies(token)
-      .then((data) => {
-        setMovies(data);
-        setLoading(false);
-      })
-      .catch(() => {
-        alert("Failed to fetch movies. Please login again");
+  //Handle API errors properly
+  useEffect(() => {
+    if (error) {
+      const errorMessage = error.message || "";
+      
+      if (errorMessage.includes("Unauthorized") || errorMessage.includes("Token expired")) {
+        toast.error("Session expired. Please login again.");
         logout();
         router.push("/login");
-      });
-  }, [router]);
+      } else {
+        toast.error("Failed to fetch movies. Please try again.");
+      }
+    }
+  }, [error, router]);
 
-  const handleAddMovie = () => {
-    router.push("/movie/add");
-  };
+  const handleAddMovie = () => router.push("/movie/add");
 
-  // Pagination logic
-  const indexOfLastMovie = currentPage * moviesPerPage;
-  const indexOfFirstMovie = indexOfLastMovie - moviesPerPage;
-  const currentMovies = movies.slice(indexOfFirstMovie, indexOfLastMovie);
+  //Memoized Pagination logic for better performance
+  const paginatedMovies = useMemo(() => {
+    const indexOfLastMovie = currentPage * moviesPerPage;
+    const indexOfFirstMovie = indexOfLastMovie - moviesPerPage;
+    return movies.slice(indexOfFirstMovie, indexOfLastMovie);
+  }, [movies, currentPage]);
 
   const totalPages = Math.ceil(movies.length / moviesPerPage);
 
   return (
     <div className="min-h-screen bg-background text-white">
-      {/* Fixed Navbar */}
+      {/* Navbar */}
       <Navbar showAddButton={movies.length > 0} onAddClick={handleAddMovie} />
 
       <div className="content-container">
-        {loading ? (
+        {isLoading ? (
           <div className="empty-state">
             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
             <p className="mt-4">Loading your movies...</p>
@@ -70,46 +72,38 @@ export default function MoviesPage() {
           </div>
         ) : (
           <>
-            {/* Responsive Movie Grid */}
+            {/* Movie Grid */}
             <div className="movie-grid">
-              {currentMovies.map((movie) => (
+              {paginatedMovies.map((movie) => (
                 <MovieCard key={movie.id} movie={movie} />
               ))}
             </div>
 
-            {/* Pagination Controls */}
+            {/* Pagination UI */}
             {totalPages > 1 && (
               <div className="pagination-container">
-                <button
-                  className="pagination-button"
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
-                  disabled={currentPage === 1}
-                >
+                <button className="pagination-button" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
+                  ⏪ First
+                </button>
+                <button className="pagination-button" onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1}>
                   Prev
                 </button>
 
                 {[...Array(totalPages)].map((_, index) => (
                   <button
                     key={index + 1}
-                    className={`pagination-number ${
-                      currentPage === index + 1 ? "active" : ""
-                    }`}
+                    className={`pagination-number ${currentPage === index + 1 ? "active" : ""}`}
                     onClick={() => setCurrentPage(index + 1)}
                   >
                     {index + 1}
                   </button>
                 ))}
 
-                <button
-                  className="pagination-button"
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                  }
-                  disabled={currentPage === totalPages}
-                >
+                <button className="pagination-button" onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages}>
                   Next
+                </button>
+                <button className="pagination-button" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
+                  Last ⏩
                 </button>
               </div>
             )}

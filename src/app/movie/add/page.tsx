@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/Button";
+import Input from "@/components/Input";
+import { toast } from "react-toastify";
 
 export default function AddMoviePage() {
   const [title, setTitle] = useState("");
@@ -10,29 +12,18 @@ export default function AddMoviePage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const router = useRouter();
 
+  // Handle File Upload
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
 
-      // Allow only JPEG & PNG files
+      // Allow only JPEG & PNG files & limit size to 5MB
       if (!["image/jpeg", "image/png"].includes(file.type)) {
-        alert("Only PNG and JPEG images are allowed.");
+        toast.error("Only PNG and JPEG images are allowed.");
         return;
       }
-
-      setPoster(file);
-      setPreviewUrl(URL.createObjectURL(file)); // Create a preview
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
-
-      // Allow only JPEG & PNG files
-      if (!["image/jpeg", "image/png"].includes(file.type)) {
-        alert("Only PNG and JPEG images are allowed.");
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File size must be under 5MB.");
         return;
       }
 
@@ -41,15 +32,36 @@ export default function AddMoviePage() {
     }
   };
 
+  //  Handle Drag & Drop Upload
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+
+      if (!["image/jpeg", "image/png"].includes(file.type)) {
+        toast.error("Only PNG and JPEG images are allowed.");
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File size must be under 5MB.");
+        return;
+      }
+
+      setPoster(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  //Handle Form Submission
   const handleSubmit = async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token"); //  Use `sessionStorage`
     if (!token) {
-      alert("You must be logged in");
+      toast.error("You must be logged in.");
       return router.push("/login");
     }
 
     if (!title || !year || !poster) {
-      alert("All fields are required.");
+      toast.error("All fields are required.");
       return;
     }
 
@@ -61,7 +73,7 @@ export default function AddMoviePage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5001/api/movies", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/movies`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -73,18 +85,18 @@ export default function AddMoviePage() {
         throw new Error("Failed to add movie");
       }
 
-      alert("Movie added successfully!");
+      toast.success("Movie added successfully!");
       router.push("/movie");
-    } catch (error) {
-      alert("Error adding movie");
+    } catch (error: any) {
+      toast.error(error.message || "Error adding movie.");
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 bg-background text-white">
 
-     {/* Background wave effect */}
-     <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden">
+      {/* Background wave effect */}
+      <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden">
         <svg className="w-full" viewBox="0 0 1440 200" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path opacity="0.2" d="M0 100L48 108.3C96 116.7 192 133.3 288 133.3C384 133.3 480 116.7 576 100C672 83.3 768 66.7 864 75C960 83.3 1056 116.7 1152 125C1248 133.3 1344 116.7 1392 108.3L1440 100V200H0V100Z" fill="#1E5470"/>
           <path opacity="0.4" d="M0 120L48 125C96 130 192 140 288 140C384 140 480 130 576 120C672 110 768 100 864 105C960 110 1056 130 1152 135C1248 140 1344 130 1392 125L1440 120V200H0V120Z" fill="#1E5470"/>
@@ -118,28 +130,16 @@ export default function AddMoviePage() {
 
           {/* Right side: Form inputs */}
           <div className="space-y-4">
-            <input
-              type="text"
-              placeholder="Title"
-              className="input w-full"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            <input
-              type="number"
-              placeholder="Publishing Year"
-              className="input w-full"
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-            />
+            <Input type="text" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+            <Input type="number" placeholder="Publishing Year" value={year} onChange={(e) => setYear(e.target.value)} />
 
             <div className="flex justify-end space-x-4 mt-4">
-              <button onClick={() => router.push("/movie")} className="btn-secondary px-6 py-2">
+              <Button onClick={() => router.push("/movie")} variant="secondary">
                 Cancel
-              </button>
-              <button onClick={handleSubmit} className="btn-primary px-6 py-2">
+              </Button>
+              <Button onClick={handleSubmit} variant="primary">
                 Submit
-              </button>
+              </Button>
             </div>
           </div>
         </div>
