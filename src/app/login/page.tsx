@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import Link from "next/link";
+import { toast } from "react-toastify";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
 
+  // Email Validation Function
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
@@ -24,27 +26,32 @@ export default function LoginPage() {
     return true;
   };
 
+  // Login API Call
   const handleLogin = async () => {
     if (!validateEmail(email) || !password) {
-      if (!password) alert("Password is required");
+      if (!password) toast.error("Password is required");
       return;
     }
 
     try {
-      const response = await fetch("http://localhost:5001/api/auth/login", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
-      if (!response.ok) throw new Error("Login failed");
-
       const data = await response.json();
-      localStorage.setItem("token", data.token);
+
+      if (!response.ok) {
+        throw new Error(data.message || "Invalid email or password");
+      }
+
+      localStorage.setItem("token", data.token); 
       router.push("/movie");
-    } catch (error) {
-      alert("Login failed: " + (error as Error).message);
+    } catch (error: any) {
+      toast.error(error?.message || "An unknown error occurred");
     }
+    
   };
 
   return (
@@ -65,25 +72,31 @@ export default function LoginPage() {
         </div>
 
         <div className="space-y-4 p-4 rounded-lg bg-opacity-10">
+          {/*Email Input with Validation */}
           <Input
             type="email"
             placeholder="Email"
             value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              if (emailError) validateEmail(e.target.value);
-            }}
+            onChange={(e) => setEmail(e.target.value)}
             onBlur={() => validateEmail(email)}
             error={emailError}
           />
 
-          <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          {/* Password Input */}
+          <Input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
+          {/*Remember Me Checkbox */}
           <div className="flex items-center">
             <input type="checkbox" id="remember" className="h-4 w-4 text-blue-600" />
             <label htmlFor="remember" className="ml-2 text-sm text-gray-300">Remember me</label>
           </div>
 
+          {/*Login Button */}
           <Button
             onClick={handleLogin}
             className="w-full bg-[#66D37E] hover:bg-[#50C268] text-white font-medium py-2 sm:py-3 rounded-md transition-colors"
@@ -91,6 +104,7 @@ export default function LoginPage() {
             Login
           </Button>
 
+          {/* Signup Link */}
           <div className="text-center mt-4">
             <Link href="/signup" className="text-[#66D37E] hover:text-[white] text-sm">
               New user? Sign Up
