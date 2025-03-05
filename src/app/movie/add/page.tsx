@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import { toast } from "react-toastify";
+import api from "@/utils/api"; // 
 
 export default function AddMoviePage() {
   const [title, setTitle] = useState("");
@@ -17,7 +18,6 @@ export default function AddMoviePage() {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
 
-      // Allow only JPEG & PNG files & limit size to 5MB
       if (!["image/jpeg", "image/png"].includes(file.type)) {
         toast.error("Only PNG and JPEG images are allowed.");
         return;
@@ -32,7 +32,7 @@ export default function AddMoviePage() {
     }
   };
 
-  //  Handle Drag & Drop Upload
+  // Handle Drag & Drop Upload
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
@@ -52,39 +52,33 @@ export default function AddMoviePage() {
     }
   };
 
-  //Handle Form Submission
+  // Handle Form Submission
   const handleSubmit = async () => {
-    const token = localStorage.getItem("token"); //  Use `sessionStorage`
+    const token = sessionStorage.getItem("accessToken");
     if (!token) {
       toast.error("You must be logged in.");
       return router.push("/login");
     }
-
+  
     if (!title || !year || !poster) {
       toast.error("All fields are required.");
       return;
     }
-
+  
     const formData = new FormData();
     formData.append("title", title);
     formData.append("publishing_year", year);
     if (poster) {
       formData.append("poster", poster);
     }
-
+  
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/movies`, {
+      // Use fetchApi helper, replacing api.post()
+      await api.fetchApi(`${process.env.NEXT_PUBLIC_API_URL}/movies`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
         body: formData,
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to add movie");
-      }
-
+  
       toast.success("Movie added successfully!");
       router.push("/movie");
     } catch (error: any) {
@@ -94,7 +88,6 @@ export default function AddMoviePage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 bg-background text-white">
-
       {/* Background wave effect */}
       <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden">
         <svg className="w-full" viewBox="0 0 1440 200" fill="none" xmlns="http://www.w3.org/2000/svg">

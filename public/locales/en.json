@@ -1,0 +1,12 @@
+{
+    "appTitle": "Movie App",
+    "welcome": "Welcome",
+    "login": "Login",
+    "logout": "Logout",
+    "movies": "Movies",
+    "addMovie": "Add Movie",
+    "editMovie": "Edit Movie",
+    "deleteMovie": "Delete Movie",
+    "redirecting": "Redirecting..."
+  }
+  

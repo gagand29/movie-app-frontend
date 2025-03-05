@@ -1,0 +1,12 @@
+{
+    "appTitle": "Aplicación de Películas",
+    "welcome": "Bienvenido",
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión",
+    "movies": "Películas",
+    "addMovie": "Agregar Película",
+    "editMovie": "Editar Película",
+    "deleteMovie": "Eliminar Película",
+    "redirecting": "Redirigiendo..."
+  }
+  

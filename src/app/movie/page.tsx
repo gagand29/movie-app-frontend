@@ -23,7 +23,7 @@ export default function MoviesPage() {
   //Fetch movies using React Query (No need to pass token)
   const { data: movies = [], isLoading, error }: UseQueryResult<Movie[], Error> = useQuery({
     queryKey: ["movies"],
-    queryFn: fetchMovies, // ✅ No manual token handling
+    queryFn: fetchMovies, //No manual token handling
   });
 
   //Handle API errors properly
