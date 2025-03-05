@@ -5,6 +5,7 @@ import Button from "@/components/Button";
 import Input from "@/components/Input";
 import Link from "next/link";
 import { toast } from "react-toastify";
+import { API_BASE_URL } from "@/utils/constants";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -34,10 +35,11 @@ export default function LoginPage() {
     }
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
+      const response = await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
+        credentials: "include", // Ensures refresh token is stored in an HTTP-only cookie
       });
 
       const data = await response.json();
@@ -46,12 +48,11 @@ export default function LoginPage() {
         throw new Error(data.message || "Invalid email or password");
       }
 
-      localStorage.setItem("token", data.token); 
-      router.push("/movie");
+      sessionStorage.setItem("accessToken", data.accessToken); //  Store access token in sessionStorage
+      router.push("/movie"); // Redirect after successful login
     } catch (error: any) {
       toast.error(error?.message || "An unknown error occurred");
     }
-    
   };
 
   return (
@@ -72,7 +73,7 @@ export default function LoginPage() {
         </div>
 
         <div className="space-y-4 p-4 rounded-lg bg-opacity-10">
-          {/*Email Input with Validation */}
+          {/* Email Input with Validation */}
           <Input
             type="email"
             placeholder="Email"
@@ -90,13 +91,13 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          {/*Remember Me Checkbox */}
+          {/* Remember Me Checkbox */}
           <div className="flex items-center">
             <input type="checkbox" id="remember" className="h-4 w-4 text-blue-600" />
             <label htmlFor="remember" className="ml-2 text-sm text-gray-300">Remember me</label>
           </div>
 
-          {/*Login Button */}
+          {/* Login Button */}
           <Button
             onClick={handleLogin}
             className="w-full bg-[#66D37E] hover:bg-[#50C268] text-white font-medium py-2 sm:py-3 rounded-md transition-colors"

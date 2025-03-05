@@ -4,6 +4,7 @@ import { useRouter, useParams } from "next/navigation";
 import { toast } from "react-toastify";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
+import api from "@/utils/api"; 
 
 export default function EditMoviePage() {
   const { id } = useParams(); //  Get movie ID from URL
@@ -18,16 +19,10 @@ export default function EditMoviePage() {
   useEffect(() => {
     const fetchMovie = async () => {
       try {
-        const token = sessionStorage.getItem("token"); // sessionStorage
-        if (!token) return router.push("/login");
-
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/movies/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const movie = await api.fetchApi(`${process.env.NEXT_PUBLIC_API_URL}/movies/${id}`, {
+          method: "GET",
         });
 
-        if (!response.ok) throw new Error("Failed to fetch movie");
-
-        const movie = await response.json();
         setTitle(movie.title);
         setYear(movie.publishing_year);
         setPreviewUrl(`${process.env.NEXT_PUBLIC_API_URL}${movie.poster_url}`);
@@ -63,28 +58,28 @@ export default function EditMoviePage() {
   // Handle Form Submission
   const handleSubmit = async () => {
     try {
-      const token = sessionStorage.getItem("token");
-      if (!token) return router.push("/login");
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("publishing_year", year.toString()); //Ensure it's sent as a string
+        if (poster) formData.append("poster", poster);
 
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append("publishing_year", year);
-      if (poster) formData.append("poster", poster);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/movies/${id}`, {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`, 
+            },
+            body: formData, //Don't set Content-Type manually for FormData
+        });
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/movies/${id}`, {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
+        if (!response.ok) throw new Error("Failed to update movie");
 
-      if (!response.ok) throw new Error("Failed to update movie");
-
-      toast.success("Movie updated successfully!");
-      router.push("/movie");
+        toast.success("Movie updated successfully!");
+        router.push("/movie");
     } catch (error: any) {
-      toast.error(error.message || "Error updating movie.");
+        toast.error(error.message || "Error updating movie.");
     }
-  };
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 bg-background text-white">

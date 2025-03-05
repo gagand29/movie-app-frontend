@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { confirmAlert } from "react-confirm-alert"; 
 import "react-confirm-alert/src/react-confirm-alert.css"; 
+import api from "@/utils/api"; // Import global API instance
 
 type Movie = {
   id: number;
@@ -27,36 +28,31 @@ const getMovieImageUrl = (poster_url: string) => {
 
 export default function MovieCard({ movie }: { movie: Movie }) {
   const router = useRouter();
-  const queryClient = useQueryClient(); //React Query client for refetching
+  const queryClient = useQueryClient(); // React Query client for refetching
 
   // Handle Delete Mutation
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        toast.error("Unauthorized. Please log in.");
-        router.push("/login");
-        throw new Error("Unauthorized");
+      try {
+        await api.fetchApi(`${API_BASE_URL}/movies/${movie.id}`, {
+          method: "DELETE",
+        });
+
+        toast.success("Movie deleted successfully!");
+      } catch (error: any) {
+        toast.error(error.message || "Error deleting movie.");
+        throw error;
       }
-
-      const response = await fetch(`${API_BASE_URL}/movies/${movie.id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!response.ok) throw new Error("Failed to delete movie");
-
-      toast.success("Movie deleted successfully!");
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["movies"] }); //Trigger a refetch of movies
+      queryClient.invalidateQueries({ queryKey: ["movies"] }); // Trigger a refetch of movies after deletion
     },
     onError: (error) => {
-      toast.error(error.message || "Error deleting movie");
+      toast.error(error.message || "Error deleting movie.");
     },
   });
 
-  //Custom Delete Confirmation Modal
+  // Custom Delete Confirmation Modal
   const showDeleteConfirmation = () => {
     confirmAlert({
       title: "Confirm Deletion",
@@ -65,15 +61,15 @@ export default function MovieCard({ movie }: { movie: Movie }) {
         {
           label: "Yes, Delete",
           onClick: () => deleteMutation.mutate(),
-          className: "confirm-button", // Optional: Add custom styling
+          className: "confirm-button",
         },
         {
           label: "Cancel",
           onClick: () => console.log("Delete canceled"),
-          className: "cancel-button", // Optional: Add custom styling
+          className: "cancel-button",
         },
       ],
-      overlayClassName: "custom-overlay", // Optional: Customize overlay
+      overlayClassName: "custom-overlay",
     });
   };
 
@@ -88,7 +84,7 @@ export default function MovieCard({ movie }: { movie: Movie }) {
           height={160}
           className="object-cover w-full h-full"
           loading="lazy"
-          priority={false} // Remove conflict between priority & lazy loading
+          priority={false}
         />
       </div>
 
@@ -108,9 +104,9 @@ export default function MovieCard({ movie }: { movie: Movie }) {
           </button>
           <button
             className="text-red-400 hover:text-red-500"
-            onClick={showDeleteConfirmation} // Show modal instead of default alert
+            onClick={showDeleteConfirmation}
             aria-label="Delete movie"
-            disabled={deleteMutation.isPending} // Disable button when deleting
+            disabled={deleteMutation.isPending}
           >
             <FaTrash />
           </button>
