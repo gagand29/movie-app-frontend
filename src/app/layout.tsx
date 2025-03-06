@@ -5,9 +5,9 @@ import "@/styles/globals.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Head from "next/head";
-
-//Import the new QueryProvider
 import QueryProvider from "@/components/QueryProvider";
+import { LanguageProvider } from "@/components/LanguageProvider"; 
+import LanguageSelector from "@/components/LanguageSelector"; 
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -34,6 +34,14 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
+    <LanguageProvider> 
+      <AppContent>{children}</AppContent> 
+    </LanguageProvider>
+  );
+}
+
+function AppContent({ children }: { children: React.ReactNode }) {
+  return (
     <html lang="en">
       <Head>
         <meta charSet="UTF-8" />
@@ -42,21 +50,9 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <body className={`${montserrat.variable} ${geistSans.variable} ${geistMono.variable} antialiased bg-background text-white`}>
-        {/* Wrap the whole app with QueryProvider */}
         <QueryProvider>
-          {/* Toast Notifications */}
-          <ToastContainer
-            position="top-right"
-            autoClose={3000}
-            hideProgressBar={false}
-            newestOnTop={true}
-            closeOnClick
-            pauseOnHover
-            draggable
-            theme="dark"
-          />
-
-          {/* Layout Structure */}
+          <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover draggable theme="dark" />
+          <LanguageSelector /> 
           <div className="flex flex-col min-h-screen">
             <main className="flex-1">{children}</main>
           </div>

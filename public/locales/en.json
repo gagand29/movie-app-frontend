@@ -1,12 +1,17 @@
 {
-    "appTitle": "Movie App",
-    "welcome": "Welcome",
-    "login": "Login",
-    "logout": "Logout",
-    "movies": "Movies",
-    "addMovie": "Add Movie",
-    "editMovie": "Edit Movie",
-    "deleteMovie": "Delete Movie",
-    "redirecting": "Redirecting..."
-  }
-  
+  "appTitle": "Movie App",
+  "welcome": "Welcome",
+  "login": "Login",
+  "logout": "Logout",
+  "movies": "Movies",
+  "addMovie": "Add Movie",
+  "editMovie": "Edit Movie",
+  "deleteMovie": "Delete Movie",
+  "redirecting": "Redirecting...",
+  "movieDeleted": "Movie deleted successfully!",
+  "deleteError": "Failed to delete movie. Please try again.",
+  "confirmDeletion": "Confirm Deletion",
+  "deleteMessage": "Are you sure you want to delete the movie \"{title}\"?",
+  "yesDelete": "Yes, Delete",
+  "cancel": "Cancel"
+}

@@ -1,21 +1,17 @@
-"use client";  // This must be a client component
+"use client";
 
-import { useState, useEffect } from "react";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export default function LanguageSelector() {
-  const [locale, setLocale] = useState("en"); // Default to English
+  const { locale, setLocale } = useLanguage();
 
-  useEffect(() => {
-    localStorage.setItem("language", locale);
-  }, [locale]);
+  const changeLanguage = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setLocale(event.target.value); //Updates instantly across app
+  };
 
   return (
-    <div className="absolute top-4 right-4">
-      <select
-        className="text-black p-2 rounded-md"
-        value={locale}
-        onChange={(e) => setLocale(e.target.value)}
-      >
+    <div className="relative">
+      <select className="text-black p-2 rounded-md cursor-pointer bg-white border" value={locale} onChange={changeLanguage}>
         <option value="en">🇬🇧 English</option>
         <option value="es">🇪🇸 Español</option>
         <option value="fr">🇫🇷 Français</option>

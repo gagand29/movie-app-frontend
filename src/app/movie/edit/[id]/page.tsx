@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { toast } from "react-toastify";
@@ -60,7 +61,7 @@ export default function EditMoviePage() {
     try {
         const formData = new FormData();
         formData.append("title", title);
-        formData.append("publishing_year", year.toString()); //Ensure it's sent as a string
+        formData.append("publishing_year", year.toString()); 
         if (poster) formData.append("poster", poster);
 
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/movies/${id}`, {
@@ -68,7 +69,7 @@ export default function EditMoviePage() {
             headers: {
                 Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`, 
             },
-            body: formData, //Don't set Content-Type manually for FormData
+            body: formData, 
         });
 
         if (!response.ok) throw new Error("Failed to update movie");
