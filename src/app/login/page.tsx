@@ -1,36 +1,50 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import Link from "next/link";
 import { toast } from "react-toastify";
 import { API_BASE_URL } from "@/utils/constants";
+import { getTranslator } from "@/utils/i18n";
+import { useLanguage } from "@/components/LanguageProvider"; 
 
 export default function LoginPage() {
   const router = useRouter();
+  const { locale } = useLanguage(); // ✅ Get current language from global state
+  const [t, setT] = useState<(key: string) => string>(() => (key: string) => key);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
 
-  // Email Validation Function
+  // re-fetch for transalations.
+  useEffect(() => {
+    async function loadTranslations() {
+      const translator = await getTranslator(locale);
+      setT(() => translator);
+    }
+    loadTranslations();
+  }, [locale]); 
+
+  // vlaidate email format
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
-      setEmailError("Email is required");
+      setEmailError(t("emailRequired"));
       return false;
     } else if (!emailRegex.test(email)) {
-      setEmailError("Please enter a valid email address");
+      setEmailError(t("invalidEmail"));
       return false;
     }
     setEmailError("");
     return true;
   };
 
-  // Login API Call
+  // Handle login
   const handleLogin = async () => {
     if (!validateEmail(email) || !password) {
-      if (!password) toast.error("Password is required");
+      if (!password) toast.error(t("passwordRequired"));
       return;
     }
 
@@ -39,25 +53,25 @@ export default function LoginPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
-        credentials: "include", // Ensures refresh token is stored in an HTTP-only cookie
+        credentials: "include",
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Invalid email or password");
+        throw new Error(data.message || t("loginError"));
       }
 
-      sessionStorage.setItem("accessToken", data.accessToken); //  Store access token in sessionStorage
-      router.push("/movie"); // Redirect after successful login
+      sessionStorage.setItem("accessToken", data.accessToken);
+      router.push("/movie");
     } catch (error: any) {
-      toast.error(error?.message || "An unknown error occurred");
+      toast.error(error?.message || t("unknownError"));
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center">
-      {/* Background wave effect */}
+      {/* Background wave */}
       <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden">
         <svg className="w-full" viewBox="0 0 1440 200" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path opacity="0.2" d="M0 100L48 108.3C96 116.7 192 133.3 288 133.3C384 133.3 480 116.7 576 100C672 83.3 768 66.7 864 75C960 83.3 1056 116.7 1152 125C1248 133.3 1344 116.7 1392 108.3L1440 100V200H0V100Z" fill="#1E5470"/>
@@ -68,15 +82,15 @@ export default function LoginPage() {
       {/* Form Container */}
       <div className="w-[360px] mx-auto px-2 z-10">
         <div className="text-center mb-6">
-          <h1 className="text-white text-2xl sm:text-3xl font-semibold mb-2">Sign in</h1>
-          <p className="text-gray-300 text-sm">Access your movie database</p>
+          <h1 className="text-white text-2xl sm:text-3xl font-semibold mb-2">{t("login")}</h1>
+          <p className="text-gray-300 text-sm">{t("accessMovieDB")}</p>
         </div>
 
         <div className="space-y-4 p-4 rounded-lg bg-opacity-10">
           {/* Email Input with Validation */}
           <Input
             type="email"
-            placeholder="Email"
+            placeholder={t("email")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             onBlur={() => validateEmail(email)}
@@ -86,7 +100,7 @@ export default function LoginPage() {
           {/* Password Input */}
           <Input
             type="password"
-            placeholder="Password"
+            placeholder={t("password")}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -94,7 +108,7 @@ export default function LoginPage() {
           {/* Remember Me Checkbox */}
           <div className="flex items-center">
             <input type="checkbox" id="remember" className="h-4 w-4 text-blue-600" />
-            <label htmlFor="remember" className="ml-2 text-sm text-gray-300">Remember me</label>
+            <label htmlFor="remember" className="ml-2 text-sm text-gray-300">{t("rememberMe")}</label>
           </div>
 
           {/* Login Button */}
@@ -102,13 +116,13 @@ export default function LoginPage() {
             onClick={handleLogin}
             className="w-full bg-[#66D37E] hover:bg-[#50C268] text-white font-medium py-2 sm:py-3 rounded-md transition-colors"
           >
-            Login
+            {t("login")}
           </Button>
 
           {/* Signup Link */}
           <div className="text-center mt-4">
             <Link href="/signup" className="text-[#66D37E] hover:text-[white] text-sm">
-              New user? Sign Up
+              {t("newUser")}
             </Link>
           </div>
         </div>

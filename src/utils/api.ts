@@ -2,14 +2,14 @@ import { API_BASE_URL } from "./constants";
 import { toast } from "react-toastify";
 
 // Function to get the access token from sessionStorage
-const getAccessToken = () => sessionStorage.getItem("accessToken");
+// const getAccessToken = () => sessionStorage.getItem("accessToken");
 
 // Function to refresh the access token
 export const refreshAccessToken = async () => {
   try {
-    // Check if user already has an access token in sessionStorage
+    // Checking if user already has an access token in sessionStorage
     if (!sessionStorage.getItem("accessToken")) {
-      console.log("No access token found. User may need to log in.");
+
       return null; // Prevent unnecessary refresh attempts
     }
 
@@ -21,7 +21,7 @@ export const refreshAccessToken = async () => {
     if (!response.ok) throw new Error("Failed to refresh token");
 
     const data = await response.json();
-    sessionStorage.setItem("accessToken", data.accessToken); // Store new access token
+    sessionStorage.setItem("accessToken", data.accessToken); 
     return data.accessToken;
   } catch (error) {
     console.error("Refresh Token Error:", error);
@@ -84,7 +84,7 @@ export const login = async (email: string, password: string) => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
-      credentials: "include", //Ensures refresh token is stored as HTTP-only cookie
+      credentials: "include", 
     });
 
     if (!response.ok) {
@@ -92,7 +92,7 @@ export const login = async (email: string, password: string) => {
     }
 
     const data = await response.json();
-    sessionStorage.setItem("accessToken", data.accessToken); //Store access token
+    sessionStorage.setItem("accessToken", data.accessToken); 
 
     return data;
   } catch (error) {
@@ -122,13 +122,13 @@ export const logout = async () => {
   try {
     await fetch(`${API_BASE_URL}/logout`, {
       method: "POST",
-      credentials: "include", // Clear refresh token cookie
+      credentials: "include", 
     });
   } catch (error) {
     console.error("Logout Error:", error);
   }
 
-  sessionStorage.removeItem("accessToken"); //Clear access token
+  sessionStorage.removeItem("accessToken"); 
   toast.success("Logged out successfully");
 };
 

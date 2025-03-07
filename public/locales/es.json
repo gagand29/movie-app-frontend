@@ -1,12 +1,17 @@
 {
-    "appTitle": "Aplicación de Películas",
-    "welcome": "Bienvenido",
-    "login": "Iniciar sesión",
-    "logout": "Cerrar sesión",
-    "movies": "Películas",
-    "addMovie": "Agregar Película",
-    "editMovie": "Editar Película",
-    "deleteMovie": "Eliminar Película",
-    "redirecting": "Redirigiendo..."
-  }
-  
+  "appTitle": "Aplicación de Películas",
+  "welcome": "Bienvenido",
+  "login": "Iniciar sesión",
+  "logout": "Cerrar sesión",
+  "movies": "Películas",
+  "addMovie": "Agregar Película",
+  "editMovie": "Editar Película",
+  "deleteMovie": "Eliminar Película",
+  "redirecting": "Redirigiendo...",
+  "movieDeleted": "¡Película eliminada con éxito!",
+  "deleteError": "No se pudo eliminar la película. Inténtalo de nuevo.",
+  "confirmDeletion": "Confirmar Eliminación",
+  "deleteMessage": "¿Estás seguro de que deseas eliminar la película \"{title}\"?",
+  "yesDelete": "Sí, Eliminar",
+  "cancel": "Cancelar"
+}

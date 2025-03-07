@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import { toast } from "react-toastify";
-import api from "@/utils/api"; // 
+import api from "@/utils/api"; 
 
 export default function AddMoviePage() {
   const [title, setTitle] = useState("");
@@ -35,6 +35,7 @@ export default function AddMoviePage() {
   // Handle Drag & Drop Upload
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+    
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
 

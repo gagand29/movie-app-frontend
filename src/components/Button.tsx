@@ -1,5 +1,5 @@
 import { ButtonHTMLAttributes, ReactNode } from "react";
-import clsx from "clsx"; // Clean class handling
+import clsx from "clsx"; // Utility for conditional class names
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;

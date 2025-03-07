@@ -1,12 +1,17 @@
 {
-    "appTitle": "Application de Films",
-    "welcome": "Bienvenue",
-    "login": "Connexion",
-    "logout": "Déconnexion",
-    "movies": "Films",
-    "addMovie": "Ajouter un Film",
-    "editMovie": "Modifier un Film",
-    "deleteMovie": "Supprimer un Film",
-    "redirecting": "Redirection..."
-  }
-  
+  "appTitle": "Application de Films",
+  "welcome": "Bienvenue",
+  "login": "Connexion",
+  "logout": "Déconnexion",
+  "movies": "Films",
+  "addMovie": "Ajouter un Film",
+  "editMovie": "Modifier un Film",
+  "deleteMovie": "Supprimer un Film",
+  "redirecting": "Redirection...",
+  "movieDeleted": "Film supprimé avec succès!",
+  "deleteError": "Impossible de supprimer le film. Veuillez réessayer.",
+  "confirmDeletion": "Confirmer la suppression",
+  "deleteMessage": "Êtes-vous sûr de vouloir supprimer le film \"{title}\"?",
+  "yesDelete": "Oui, Supprimer",
+  "cancel": "Annuler"
+}

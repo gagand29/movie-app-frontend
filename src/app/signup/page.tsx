@@ -1,13 +1,19 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import Link from "next/link";
 import { toast } from "react-toastify";
+import { useLanguage } from "@/components/LanguageProvider"; 
+import { getTranslator } from "@/utils/i18n";
 
 export default function SignupPage() {
   const router = useRouter();
+  const { locale } = useLanguage(); 
+  const [t, setT] = useState<(key: string) => string>(() => (key:string) => key);
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,40 +21,49 @@ export default function SignupPage() {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
-  //Email Validation Function
+  // Load translations dynamically
+  useEffect(() => {
+    async function loadTranslations() {
+      const translator = await getTranslator(locale);
+      setT(() => translator);
+    }
+    loadTranslations();
+  }, [locale]);
+
+  // Validate email 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
-      setEmailError("Email is required");
+      setEmailError(t("emailRequired"));
       return false;
     } else if (!emailRegex.test(email)) {
-      setEmailError("Please enter a valid email address");
+      setEmailError(t("invalidEmail"));
       return false;
     }
     setEmailError("");
     return true;
   };
 
-  //Password Validation Function
+  // validate password
   const validatePassword = () => {
     if (!password) {
-      setPasswordError("Password is required");
+      setPasswordError(t("passwordRequired"));
       return false;
     } else if (password.length < 6) {
-      setPasswordError("Password must be at least 6 characters");
+      setPasswordError(t("passwordMinLength"));
       return false;
     } else if (password !== confirmPassword) {
-      setPasswordError("Passwords do not match");
+      setPasswordError(t("passwordsDoNotMatch"));
       return false;
     }
     setPasswordError("");
     return true;
   };
 
-  // Signup API Call
+  // Handle signup 
   const handleSignup = async () => {
     if (!validateEmail(email) || !validatePassword() || !name) {
-      if (!name) toast.error("Name is required");
+      if (!name) toast.error(t("nameRequired"));
       return;
     }
 
@@ -60,12 +75,12 @@ export default function SignupPage() {
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Signup failed");
+      if (!response.ok) throw new Error(data.message || t("signupFailed"));
 
-      toast.success("User registered successfully!");
+      toast.success(t("signupSuccess"));
       router.push("/login");
     } catch (error: any) {
-      toast.error(error.message || "Signup failed");
+      toast.error(error.message || t("signupFailed"));
     }
   };
 
@@ -82,18 +97,18 @@ export default function SignupPage() {
       {/* Form Container */}
       <div className="w-[400px] mx-auto px-6 z-10">
         <div className="text-center mb-6">
-          <h1 className="text-white text-3xl font-semibold mb-2">Sign up</h1>
-          <p className="text-gray-300 text-sm">Create your movie database account</p>
+          <h1 className="text-white text-3xl font-semibold mb-2">{t("signup")}</h1>
+          <p className="text-gray-300 text-sm">{t("createAccount")}</p>
         </div>
 
         <div className="space-y-4 p-6 rounded-lg bg-opacity-10">
           {/* Full Name */}
-          <Input type="text" placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} />
+          <Input type="text" placeholder={t("fullName")} value={name} onChange={(e) => setName(e.target.value)} />
 
           {/* Email Input */}
           <Input
             type="email"
-            placeholder="Email"
+            placeholder={t("email")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             onBlur={() => validateEmail(email)}
@@ -101,12 +116,12 @@ export default function SignupPage() {
           />
 
           {/* Password Input */}
-          <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <Input type="password" placeholder={t("password")} value={password} onChange={(e) => setPassword(e.target.value)} />
 
           {/* Confirm Password Input */}
           <Input
             type="password"
-            placeholder="Confirm Password"
+            placeholder={t("confirmPassword")}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             onBlur={validatePassword}
@@ -115,13 +130,13 @@ export default function SignupPage() {
 
           {/* Signup Button */}
           <Button onClick={handleSignup} className="w-full bg-[#66D37E] hover:bg-[#50C268] text-white font-medium py-3 rounded-md">
-            Sign Up
+            {t("signup")}
           </Button>
 
           {/* Redirect to Login */}
           <div className="text-center mt-4">
             <Link href="/login" className="text-[#66D37E] hover:text-[white] text-sm">
-              Already have an account? Sign In
+              {t("alreadyHaveAccount")}
             </Link>
           </div>
         </div>
